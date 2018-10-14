@@ -1,5 +1,5 @@
 from subprocess import Popen as popen,PIPE
-from nm_array import nm_array
+from nm_dict import nm_dict
 snmp_parse_t = {
   "ifHCInOctets": "IF-MIB::ifHCInOctets\.(\d+) = Counter64: (\d+)", # 端口接收的字节数(64位计数器)
   "ifHCOutOctets": "IF-MIB::ifHCOutOctets.(\d+) = Counter64: (\d+)", # 端口发送的字节数(64位计数器)
@@ -94,30 +94,20 @@ def rate(host,snmp_comm,oid,interval=5,cont=True,handle=print):
   from time import time,sleep
   prev_timer = time()
   max_value = pow(2,64)-1
-  ret_dict = dict()
-  prev_value = snmp_u(host,snmp_comm,oid,snmp_parse_t[oid])
+  rate_dict = dict()
+  prev_value = nm_dict(snmp_u(host,snmp_comm,oid,snmp_parse_t[oid]))
   if cont == True and handle is not None:
     while(True):
       sleep(interval-(time()-prev_timer)*2)
-      cur_value = snmp_u(host,snmp_comm,oid,snmp_parse_t[oid])
+      cur_value = nm_dict(snmp_u(host,snmp_comm,oid,snmp_parse_t[oid]))
       cur_timer = time()
-      for key in cur_value.keys():
-        cv = float(cur_value.get(key))
-        pv = float(prev_value.get(key))
-        if cv < pv: cv = cv + max_value
-        ret_dict[key] = (cv-pv)/(cur_timer-prev_timer)
+      rate_dict = (cur_value - prev_value).adjust(cb=64)/(cur_timer - prev_timer)
       prev_value = cur_value
       prev_timer = cur_timer
-      handle(ret_dict)
+      handle(dict(rate_dict))
   else:
     sleep(interval-(time()-prev_timer))
-    cur_value = snmp_u(host,snmp_comm,oid,snmp_parse_t[oid])
+    cur_value = nm_dict(snmp_u(host,snmp_comm,oid,snmp_parse_t[oid]))
     cur_timer = time()
-    for key in cur_value.keys():
-      cv = float(cur_value.get(key))
-      pv = float(prev_value.get(key))
-      if cv < pv: cv = cv + max_value
-      ret_dict[key] = (cv-pv)/(cur_timer-prev_timer)
-    prev_value = cur_value
-    prev_timer = cur_timer
-  return ret_dict
+    rate_dict = (cur_value - prev_value).adjust(cb=64)/(cur_timer - prev_timer)
+  return dict(rate_dict)

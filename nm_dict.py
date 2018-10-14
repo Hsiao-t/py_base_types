@@ -12,7 +12,8 @@ class nm_dict(object):
         try: s._data[key] = float(dict_data[key])
         except: s._data[key] = 0.0
     else:
-      raise ValueError("only numeric data can be passed in")
+      err_data = "Only numeric data can be passed in.\nPassed data:{}".format(dict_data)
+      raise ValueError(err_data)
 
   def __setitem__(s,key,value):
     if type(value) is int or type(value) is float(value):
