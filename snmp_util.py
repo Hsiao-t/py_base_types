@@ -121,17 +121,3 @@ def rate(host,snmp_comm,oid,interval=5,cont=True,handle=print):
     prev_value = cur_value
     prev_timer = cur_timer
   return ret_dict
-
-if __name__ == '__main__':
-#  for k in snmp_parse_t.keys():
-#    print("获取数据: snmp_id:{}, parse_pattern:{}".format(k,snmp_parse_t[k]))
-#    print(snmp_u('1.1.6.9', 'sicnu', k, snmp_parse_t[k]))
-#    input("Press enter")
-#  print(rate('1.1.6.9','sicnu','ifHCInOctets',cont=False))
-  fetch_list = ['ifDescr','ifHCInUcastPkts','ifHCOutUcastPkts','ifHCInBroadcastPkts','ifHCOutBroadcastPkts','ifHCInMulticastPkts','ifHCOutMulticastPkts']
-  prev_timer = time()
-  prev = snmp_bw('1.1.6.9','sicnu',fetch_list)
-  indexies = fetch_list[1:]
-  prev_data = dict()
-  for value in rt.values():
-    prev = prev_data[value[0]] = value[1:]
